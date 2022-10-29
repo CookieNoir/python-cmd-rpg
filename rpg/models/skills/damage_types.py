@@ -6,3 +6,4 @@ class DamageTypes(Enum):
     MAGICAL = 1
     PURE = 2
     HEALING = 3
+    REFLECTED = 4

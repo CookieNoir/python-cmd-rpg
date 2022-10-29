@@ -1,7 +1,7 @@
-from inventory_item_types import InventoryItemTypes as IITypes
+from game_item_types import GameItemTypes as IITypes
 
 
-class InventoryItem:
+class GameItem:
     def __init__(self,
                  item_id: int,
                  item_name: str,

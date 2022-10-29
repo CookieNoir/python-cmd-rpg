@@ -1,5 +1,5 @@
 from equippable_item import EquippableItem
-from inventory_item_types import InventoryItemTypes as IITypes
+from game_item_types import GameItemTypes as IITypes
 
 
 class Weapon(EquippableItem):
