@@ -6,8 +6,6 @@ from entity_stat_types import EntityStatTypes as ESTypes
 from rpg.models.game_items.game_item_types import GameItemTypes
 from rpg.models.game_items.equippable_item import EquippableItem
 from rpg.models.game_items.stat_modifier import StatModifier
-from rpg.models.skills.skill import Skill
-from rpg.models.skills.skill_step import SkillStep
 from math import floor
 
 
@@ -157,15 +155,9 @@ class Entity:
         return self._stats[ESTypes.DAMAGE_REFLECTION].addition \
                + floor(damage * (1.0 - 1.0 / self._stats[ESTypes.DAMAGE_REFLECTION].multiplier))
 
-    def get_skill_damage(self, weapon: Weapon, skill: Skill) -> list:
-        weapon_damage = (weapon.base_damage + self._stats[ESTypes.DAMAGE].addition) * self._stats[
-            ESTypes.DAMAGE].multiplier
-        qty = len(skill.skill_steps)
-        result = [0] * qty
-        for i in range(0, qty):
-            step: SkillStep = skill.skill_steps[i]
-            result[i] = weapon_damage * step.damage_multiplier
-        return result
+    def buff_weapon_damage(self, target_weapon: Weapon) -> int:
+        return int((target_weapon.base_damage + self._stats[ESTypes.DAMAGE].addition) * self._stats[
+            ESTypes.DAMAGE].multiplier)
 
     def get_item_from_slot(self, item_slot: GameItemTypes) -> int:
         if item_slot == GameItemTypes.OTHER:
