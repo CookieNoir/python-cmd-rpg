@@ -17,6 +17,6 @@ class Weapon(EquippableItem):
     def base_damage(self) -> int:
         return self._base_damage
 
-    def get_skills(self):
-        for skill in self._skills:
-            yield skill
+    @property
+    def skills(self) -> list:
+        return self._skills

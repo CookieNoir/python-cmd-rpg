@@ -28,18 +28,18 @@ def _apply_skill_step(caster_skill_step: SkillStep,
                       caster_entity: Entity,
                       targets: list) -> list:
     log = []  # returning value, contains tuples (from_entity, to_entity, damage_type, damage_value)
-    step_damage = int(weapon_damage * caster_skill_step.damage_multiplier)
+    step_damage = caster_skill_step.get_scaled_damage(weapon_damage)
     total_reflection: int = 0
     for possible_target in targets:
         entity_target: Entity = possible_target
         damage_received, damage_reflected = entity_target.get_damaged(caster_skill_step.damage_type, step_damage,
                                                                       armor_pierce)
-        log.append((caster_entity, entity_target, caster_skill_step.damage_type, damage_received))
+        log.append((entity_target, caster_skill_step.damage_type, damage_received))
         if entity_target != caster_entity:
             total_reflection += damage_reflected
 
     if total_reflection > 0:
         reflection_received, reflection_reflected = caster_entity.get_damaged(DamageTypes.REFLECTED,
                                                                               total_reflection, 0)
-        log.append((caster_entity, caster_entity, DamageTypes.REFLECTED, reflection_received))
+        log.append((caster_entity, DamageTypes.REFLECTED, reflection_received))
     return log

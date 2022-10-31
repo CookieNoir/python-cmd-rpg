@@ -9,4 +9,8 @@ class EquippableItem(GameItem):
                  item_price: int = 0,
                  stat_modifiers: list = None):
         super().__init__(item_id, item_name, item_type, item_price)
-        self.stat_modifiers = stat_modifiers
+        self._stat_modifiers = stat_modifiers
+
+    @property
+    def stat_modifiers(self):
+        return self._stat_modifiers
