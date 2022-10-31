@@ -1,7 +1,7 @@
 from enum import Enum
 
 
-class EntityStatTypes(Enum):
+class StatTypes(Enum):
     MAX_HEALTH = 0
     SPEED = 1
 

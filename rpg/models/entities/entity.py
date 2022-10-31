@@ -2,7 +2,7 @@ from math import ceil
 from entity_stat import EntityStat
 from rpg.models.game_items.weapon import Weapon
 from rpg.models.skills.damage_types import DamageTypes
-from entity_stat_types import EntityStatTypes as ESTypes
+from rpg.models.game_items.stat_types import StatTypes
 from rpg.models.game_items.game_item_types import GameItemTypes
 from rpg.models.game_items.equippable_item import EquippableItem
 from rpg.models.game_items.stat_modifier import StatModifier
@@ -21,13 +21,13 @@ class Entity:
                  base_damage_reflection: int = 0):
         self.name = name,
         self._stats = {
-            ESTypes.MAX_HEALTH: EntityStat(base_max_health),
-            ESTypes.SPEED: EntityStat(base_speed),
-            ESTypes.PHYSICAL_RESISTANCE: EntityStat(base_physical_armor),
-            ESTypes.MAGICAL_RESISTANCE: EntityStat(base_magical_armor),
-            ESTypes.DAMAGE: EntityStat(base_damage),
-            ESTypes.ARMOR_PIERCE: EntityStat(base_armor_pierce),
-            ESTypes.DAMAGE_REFLECTION: EntityStat(base_damage_reflection),
+            StatTypes.MAX_HEALTH: EntityStat(base_max_health),
+            StatTypes.SPEED: EntityStat(base_speed),
+            StatTypes.PHYSICAL_RESISTANCE: EntityStat(base_physical_armor),
+            StatTypes.MAGICAL_RESISTANCE: EntityStat(base_magical_armor),
+            StatTypes.DAMAGE: EntityStat(base_damage),
+            StatTypes.ARMOR_PIERCE: EntityStat(base_armor_pierce),
+            StatTypes.DAMAGE_REFLECTION: EntityStat(base_damage_reflection),
         }
         self._equipped_items = {
             GameItemTypes.WEAPON: 0,
@@ -35,7 +35,7 @@ class Entity:
             GameItemTypes.BODY: 0,
             GameItemTypes.LEGS: 0,
         }
-        max_health = self._stats[ESTypes.MAX_HEALTH].get_total_value()
+        max_health = self._stats[StatTypes.MAX_HEALTH].get_total_value()
         self.current_health = max_health
 
     @property
@@ -44,54 +44,56 @@ class Entity:
 
     @current_health.setter
     def current_health(self, value: int):
-        max_health = self._stats[ESTypes.MAX_HEALTH].get_total_value()
+        max_health = self._stats[StatTypes.MAX_HEALTH].get_total_value()
         if value > max_health:
             value = max_health
         elif value < 0:
             value = 0
         self._current_health = value
 
+    def is_alive(self):
+        return self.current_health > 0
+
     def _recalculate_current_health(self, start_max_health: int):
-        new_max_health = self._stats[ESTypes.MAX_HEALTH].get_total_value()
+        new_max_health = self._stats[StatTypes.MAX_HEALTH].get_total_value()
         if new_max_health == start_max_health:
             return
         multiplier = self.current_health / start_max_health
         self.current_health = ceil(new_max_health * multiplier)
 
-    def get_healed(self, healing_value):
-        if self.current_health <= 0:
+    def _get_healed(self, healing_value):
+        if not self.is_alive:
             return
         if healing_value < 0:
             return
         self.current_health += healing_value
 
+    def _get_damaged(self, damage: int) -> int:
+        self.current_health -= damage
+        return self._get_damage_reflection(damage)
+
     def get_damaged(self, damage_type: DamageTypes, damage: int, pierce: int = 0) -> (int, int):
-        if self.current_health <= 0:
+        if not self.is_alive:
             return 0
-        damage_received = 0
-        is_reflected = False
+        modified_damage = damage
         damage_reflected = 0
         match damage_type:
             case DamageTypes.PHYSICAL:
-                damage_received = self._get_incoming_damage(damage, pierce,
-                                                            self._stats[ESTypes.PHYSICAL_RESISTANCE].get_total_value())
-                is_reflected = True
+                modified_damage = self._get_incoming_damage(damage, pierce,
+                                                            self._stats[
+                                                                StatTypes.PHYSICAL_RESISTANCE].get_total_value())
+                damage_reflected = self._get_damaged(modified_damage)
             case DamageTypes.MAGICAL:
-                damage_received = self._get_incoming_damage(damage, pierce,
-                                                            self._stats[ESTypes.MAGICAL_RESISTANCE].get_total_value())
-                is_reflected = True
+                modified_damage = self._get_incoming_damage(damage, pierce,
+                                                            self._stats[StatTypes.MAGICAL_RESISTANCE].get_total_value())
+                damage_reflected = self._get_damaged(modified_damage)
             case DamageTypes.PURE:
-                damage_received = damage
-                is_reflected = True
+                damage_reflected = self._get_damaged(damage)
             case DamageTypes.HEALING:
-                self.get_healed(damage)
+                self._get_healed(damage)
             case DamageTypes.REFLECTED:
-                damage_received = damage
-        if damage_received > 0:
-            self.current_health -= damage_received
-        if is_reflected:
-            damage_reflected = self._get_damage_reflection(damage_received)
-        return damage_received, damage_reflected
+                self._get_damaged(damage)
+        return modified_damage, damage_reflected
 
     def _free_item_slot(self, item_slot: GameItemTypes) -> int:
         pop_item_id = self._equipped_items[item_slot]
@@ -114,7 +116,7 @@ class Entity:
             return 0
 
     def _remove_item_modifiers(self, item_id: int):
-        max_health = self._stats[ESTypes.MAX_HEALTH].get_total_value()
+        max_health = self._stats[StatTypes.MAX_HEALTH].get_total_value()
         for i in self._stats:
             self._stats[i].remove_modifier(item_id)
         self._recalculate_current_health(max_health)
@@ -131,7 +133,7 @@ class Entity:
                 return previous_item
 
     def _apply_item_modifiers(self, item: EquippableItem):
-        max_health = self._stats[ESTypes.MAX_HEALTH].get_total_value()
+        max_health = self._stats[StatTypes.MAX_HEALTH].get_total_value()
         for i in item.stat_modifiers:
             if i is StatModifier:
                 stat_modifier: StatModifier = i
@@ -141,10 +143,10 @@ class Entity:
         self._recalculate_current_health(max_health)
 
     def get_speed(self):
-        return self._stats[ESTypes.SPEED].get_total_value()
+        return self._stats[StatTypes.SPEED].get_total_value()
 
     def get_pierce(self):
-        return self._stats[ESTypes.ARMOR_PIERCE].get_total_value()
+        return self._stats[StatTypes.ARMOR_PIERCE].get_total_value()
 
     @staticmethod
     def _get_incoming_damage(damage: int, pierce: int, resistance: int) -> int:
@@ -152,12 +154,12 @@ class Entity:
         return max(damage - resisted, 1)
 
     def _get_damage_reflection(self, damage: int) -> int:
-        return self._stats[ESTypes.DAMAGE_REFLECTION].addition \
-               + floor(damage * (1.0 - 1.0 / self._stats[ESTypes.DAMAGE_REFLECTION].multiplier))
+        return self._stats[StatTypes.DAMAGE_REFLECTION].addition \
+               + floor(damage * (1.0 - 1.0 / self._stats[StatTypes.DAMAGE_REFLECTION].multiplier))
 
     def buff_weapon_damage(self, target_weapon: Weapon) -> int:
-        return int((target_weapon.base_damage + self._stats[ESTypes.DAMAGE].addition) * self._stats[
-            ESTypes.DAMAGE].multiplier)
+        return int((target_weapon.base_damage + self._stats[StatTypes.DAMAGE].addition) * self._stats[
+            StatTypes.DAMAGE].multiplier)
 
     def get_item_from_slot(self, item_slot: GameItemTypes) -> int:
         if item_slot == GameItemTypes.OTHER:

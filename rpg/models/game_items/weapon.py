@@ -10,5 +10,13 @@ class Weapon(EquippableItem):
                  skills: list = None,
                  stat_modifiers: list = None):
         super().__init__(item_id, item_name, IITypes.WEAPON, item_price, stat_modifiers)
-        self.base_damage = base_damage
-        self.skills = skills
+        self._base_damage = base_damage
+        self._skills = skills
+
+    @property
+    def base_damage(self) -> int:
+        return self._base_damage
+
+    def get_skills(self):
+        for skill in self._skills:
+            yield skill
