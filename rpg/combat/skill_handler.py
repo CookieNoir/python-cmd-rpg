@@ -11,10 +11,9 @@ def apply_skill(casted_skill: Skill,
                 direct_target: Entity or None,
                 indirect_targets: list) -> list:
     total_log = []
-    buffed_damage = caster_entity.buff_weapon_damage(caster_weapon)
-    caster_pierce = caster_entity.get_pierce()
-    for i in casted_skill.skill_steps:
-        step: SkillStep = i
+    buffed_damage = caster_entity.buff_damage(caster_weapon.base_damage)
+    caster_pierce = caster_entity.pierce()
+    for step in casted_skill.skill_steps:
         if casted_skill.is_direct and step.affects_target:
             total_log += _apply_skill_step(step, buffed_damage, caster_pierce, caster_entity, [direct_target])
         else:
@@ -30,8 +29,7 @@ def _apply_skill_step(caster_skill_step: SkillStep,
     log = []  # returning value, contains tuples (from_entity, to_entity, damage_type, damage_value)
     step_damage = caster_skill_step.get_scaled_damage(weapon_damage)
     total_reflection: int = 0
-    for possible_target in targets:
-        entity_target: Entity = possible_target
+    for entity_target in targets:
         damage_received, damage_reflected = entity_target.get_damaged(caster_skill_step.damage_type, step_damage,
                                                                       armor_pierce)
         log.append((entity_target, caster_skill_step.damage_type, damage_received))

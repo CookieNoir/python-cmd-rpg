@@ -1,4 +1,4 @@
-from stat_types import StatTypes
+from rpg.models.game_items.stat_types import StatTypes
 
 
 class StatModifier:

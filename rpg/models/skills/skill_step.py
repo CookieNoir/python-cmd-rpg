@@ -1,4 +1,5 @@
-from damage_types import DamageTypes
+from rpg.models.skills.damage_types import DamageTypes
+from math import ceil
 
 
 class SkillStep:
@@ -22,5 +23,5 @@ class SkillStep:
     def damage_multiplier(self) -> float:
         return self._damage_multiplier
 
-    def get_scaled_damage(self, weapon_damage: int):
-        return int(weapon_damage * self._damage_multiplier)
+    def get_scaled_damage(self, weapon_damage: int) -> int:
+        return ceil(weapon_damage * self._damage_multiplier)

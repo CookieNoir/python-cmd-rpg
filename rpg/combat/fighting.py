@@ -1,4 +1,5 @@
-from fighter import Fighter
+from rpg.combat.fighter import Fighter
+from rpg.combat.skill_handler import apply_skill
 from rpg.repositories.item_repository import ItemRepository
 from rpg.repositories.skill_repository import SkillRepository
 from rpg.controllers import console_input
@@ -6,10 +7,10 @@ from rpg.models.game_items.game_item_types import GameItemTypes
 from rpg.models.game_items.weapon import Weapon
 from rpg.models.skills.skill import Skill
 from rpg.models.skills.skill_targets import SkillTargets
+import rpg.drawers.fighting_drawer as fighting_drawer
 from random import randrange
-from skill_handler import apply_skill
-from rpg.drawers.skill_drawer import print_skills
-from rpg.drawers.entity_drawer import print_entities_health
+
+
 
 def fight(allies: list, enemies: list, items: ItemRepository, skills: SkillRepository) -> bool:
     def get_total_speed() -> int:
@@ -51,15 +52,14 @@ def _make_move(caster: Fighter, fighters: list, items: ItemRepository, skills: S
     allies = [fighter.entity for fighter in fighters if fighter.controllable == caster.controllable]
     enemies = [fighter.entity for fighter in fighters if fighter.controllable != caster.controllable]
     if caster.controllable:
-        print_entities_health(allies, enemies)
+        fighting_drawer.print_entities_info(allies, enemies)
     weapon_id = caster.entity.get_item_from_slot(GameItemTypes.WEAPON)
     caster_weapon: Weapon = items.get_item(weapon_id)
     possible_skill_names = caster_weapon.skills
     possible_skills = [skills.get_item(name) for name in possible_skill_names]
-    selected_skill_index: int = -1
     if caster.controllable:
-        weapon_damage = caster.entity.buff_weapon_damage(caster_weapon)
-        print_skills(possible_skills, weapon_damage)
+        weapon_damage = caster.entity.buff_damage(caster_weapon.base_damage)
+        fighting_drawer.print_skills(possible_skills, weapon_damage, 1)
         selected_skill_index = console_input.get_int_value(1, len(possible_skills)) - 1
     else:
         selected_skill_index = randrange(len(possible_skills))
@@ -76,9 +76,8 @@ def _make_move(caster: Fighter, fighters: list, items: ItemRepository, skills: S
 
     target = None
     if casted_skill.is_direct:
-        target_index: int = -1
         if caster.controllable:
-            # show all possible targets
+            fighting_drawer.print_target_names(targets, 1)
             target_index = console_input.get_int_value(1, len(targets)) - 1
         else:
             target_index = randrange(len(targets))
@@ -86,5 +85,4 @@ def _make_move(caster: Fighter, fighters: list, items: ItemRepository, skills: S
         targets.remove(target)
 
     move_log = apply_skill(casted_skill, caster_weapon, caster.entity, target, targets)
-    # caster casted skill
-    # show move_log
+    fighting_drawer.print_log(caster.entity, casted_skill.name, move_log)

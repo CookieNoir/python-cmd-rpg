@@ -1,4 +1,4 @@
-from skill_targets import SkillTargets
+from rpg.models.skills.skill_targets import SkillTargets
 
 
 class Skill:

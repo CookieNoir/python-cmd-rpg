@@ -1,4 +1,4 @@
-from game_item_types import GameItemTypes
+from rpg.models.game_items.game_item_types import GameItemTypes
 
 
 class GameItem:
@@ -10,6 +10,8 @@ class GameItem:
         self._item_id = item_id
         self._item_name = item_name
         self._item_type = item_type
+        if item_price < 0:
+            item_price = 0
         self._item_price = item_price
 
     @property

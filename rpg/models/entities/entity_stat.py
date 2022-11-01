@@ -1,3 +1,6 @@
+from math import ceil
+
+
 class EntityStat:
     def __init__(self, base_addition: int = 0, base_multiplier: float = 1.0):
         self._base_addition = base_addition
@@ -7,16 +10,23 @@ class EntityStat:
         self._recalculate_stat()
 
     def add_modifier(self, item_id: int, is_multiplier: bool, value: float):
+        def _fill_dict(in_dict: dict):
+            if not (item_id in in_dict and in_dict[item_id] >= value):
+                in_dict[item_id] = value
+
         if is_multiplier:
-            self._multiplier_modifiers[item_id] = value
+            _fill_dict(self._multiplier_modifiers)
             self._recalculate_multiplier()
         else:
-            self._addition_modifiers[item_id] = int(value)
+            value = ceil(value)
+            _fill_dict(self._addition_modifiers)
             self._recalculate_addition()
 
     def remove_modifier(self, item_id: int):
-        self._addition_modifiers.pop(item_id)
-        self._multiplier_modifiers.pop(item_id)
+        if item_id in self._addition_modifiers:
+            self._addition_modifiers.pop(item_id)
+        if item_id in self._multiplier_modifiers:
+            self._multiplier_modifiers.pop(item_id)
         self._recalculate_stat()
 
     def _recalculate_addition(self):
@@ -34,4 +44,4 @@ class EntityStat:
         self._recalculate_multiplier()
 
     def get_total_value(self) -> int:
-        return int(self.addition * self.multiplier)
+        return ceil(self.addition * self.multiplier)
