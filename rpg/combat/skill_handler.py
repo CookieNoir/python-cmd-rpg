@@ -9,15 +9,16 @@ def apply_skill(casted_skill: Skill,
                 caster_weapon: Weapon,
                 caster_entity: Entity,
                 direct_target: Entity or None,
-                indirect_targets: list) -> list:
+                indirect_targets: list or None) -> list:
     total_log = []
     buffed_damage = caster_entity.buff_damage(caster_weapon.base_damage)
-    caster_pierce = caster_entity.pierce()
+    caster_pierce = caster_entity.pierce
     for step in casted_skill.skill_steps:
         if casted_skill.is_direct and step.affects_target:
             total_log += _apply_skill_step(step, buffed_damage, caster_pierce, caster_entity, [direct_target])
         else:
-            total_log += _apply_skill_step(step, buffed_damage, caster_pierce, caster_entity, [indirect_targets])
+            if indirect_targets is not None:
+                total_log += _apply_skill_step(step, buffed_damage, caster_pierce, caster_entity, indirect_targets)
     return total_log
 
 

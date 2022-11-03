@@ -3,7 +3,7 @@ from rpg.models.entities.entity import Entity
 
 class Fighter:
     def __init__(self, fighter_entity: Entity, controllable: bool):
-        self._step = fighter_entity.speed()
+        self._step = fighter_entity.speed
         self._value = 0
         self._controllable = controllable
         self.entity = fighter_entity
