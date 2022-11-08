@@ -1,4 +1,4 @@
-from local_repository import LocalRepository
+from rpg.repositories.local_repository import LocalRepository
 from rpg.models.skills.skill import Skill
 
 

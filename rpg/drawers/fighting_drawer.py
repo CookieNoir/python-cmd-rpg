@@ -1,14 +1,21 @@
 from math import ceil
-from line_drawer import print_solid_line
+from rpg.drawers.line_drawer import print_solid_line
 from rpg.models.entities.entity import Entity
 from rpg.models.skills.damage_types import DamageTypes
 
 HEALTH_BAR_LENGTH = 10
+HEALTH_FILLED = chr(ord('█'))
+HEALTH_EMPTY = chr(ord('░'))
 
 
 def get_health_bar(current_health: int, max_health: int) -> str:  # result example: [█████░░░░░] 17/40 HP
-    bar = (chr(9608) * ceil(current_health / max_health * HEALTH_BAR_LENGTH)).ljust(HEALTH_BAR_LENGTH, chr(9617))
-    return f"[{bar}] {current_health}/{max_health} HP"
+    if current_health > 0:
+        bar = (HEALTH_FILLED * ceil(current_health / max_health * HEALTH_BAR_LENGTH)).ljust(HEALTH_BAR_LENGTH,
+                                                                                            HEALTH_EMPTY)
+        result = f"[{bar}] {current_health}/{max_health} HP"
+    else:
+        result = "DEAD"
+    return result
 
 
 def print_entities_info(allies: list, enemies: list):
@@ -25,6 +32,8 @@ def print_entities_info(allies: list, enemies: list):
 
 
 def print_target_names(targets: list, index_offset: int = 1):
+    print("Select target:")
+    print()
     for target in targets:
         print(f"{index_offset:<3} {target.name}")
         index_offset += 1
@@ -33,17 +42,22 @@ def print_target_names(targets: list, index_offset: int = 1):
 def print_skills(skills: list,
                  weapon_damage: int,
                  index_offset: int = 1):
+    print("Select skill:")
+    print()
     for skill in skills:
         damages = skill.get_skill_step_damages(weapon_damage)
         print(f"{index_offset:<3} {skill.name}")
-        print(f"Description:    {skill.description.format(damages)}")
+        print(f"Description:    {skill.description.format(*damages)}")
         index_offset += 1
+
+
+def print_caster_makes_move(caster: Entity):
+    print(f"{caster.name} makes a move")
 
 
 def print_log(caster: Entity, skill_name: str,
               move_log: list):  # move_log should contain tuples (Entity, DamageTypes, int)
     print("{} used the \"{}\" skill".format(caster.name, skill_name))
-    print()
     output_format = None
     for target_info in move_log:
         match target_info[1]:

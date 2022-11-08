@@ -1,4 +1,4 @@
-from local_repository import LocalRepository
+from rpg.repositories.local_repository import LocalRepository
 from rpg.models.game_items.game_item import GameItem
 from rpg.models.game_items.equippable_item import EquippableItem
 from rpg.models.game_items.weapon import Weapon

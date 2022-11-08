@@ -14,10 +14,10 @@ def test_value_default_returns_0():
     assert test_fighter.value == 0
 
 
-def test_controllable_returns_true():
+def test_is_ally_returns_true():
     test_entity = Entity("Tom", base_speed=3)
     test_fighter = Fighter(test_entity, True)
-    assert test_fighter.controllable is True
+    assert test_fighter.is_ally is True
 
 
 def test_make_step_returns_3():

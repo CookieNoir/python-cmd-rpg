@@ -9,7 +9,7 @@ def apply_skill(casted_skill: Skill,
                 caster_weapon: Weapon,
                 caster_entity: Entity,
                 direct_target: Entity or None,
-                indirect_targets: list or None) -> list:
+                indirect_targets: list or None = None) -> list:
     total_log = []
     buffed_damage = caster_entity.buff_damage(caster_weapon.base_damage)
     caster_pierce = caster_entity.pierce

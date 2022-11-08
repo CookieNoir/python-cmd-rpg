@@ -51,11 +51,64 @@ def test_apply_skill_step_applies_pierce_returns_3():
     assert targets[0].current_health == 3
 
 
-def test_apply_skill_applies_skill_steps_returns_1():
+def test_apply_skill_applies_one_skill_step_returns_1():
     test_entity_caster = Entity("Barko")
     test_target = Entity("Boris")
     test_weapon = Weapon(1, "Test weapon", base_damage=3)
     test_skill = Skill("Test skill", is_direct=True, targets=SkillTargets.ENEMIES,
                        skill_steps=[SkillStep(DamageTypes.PHYSICAL, True, 1.0)], description="Placeholder description")
-    log = sh.apply_skill(test_skill, test_weapon, test_entity_caster, test_target, None)
+    log = sh.apply_skill(test_skill, test_weapon, test_entity_caster, test_target)
     assert len(log) == 1
+
+
+def test_apply_skill_applies_all_skill_steps_returns_2():
+    test_entity_caster = Entity("Barko")
+    test_target = Entity("Boris")
+    test_weapon = Weapon(1, "Test weapon", base_damage=3)
+    test_skill = Skill("Test skill", is_direct=True, targets=SkillTargets.ENEMIES,
+                       skill_steps=[SkillStep(DamageTypes.PHYSICAL, True, 1.0),
+                                    SkillStep(DamageTypes.MAGICAL, True, 1.0)], description="Placeholder description")
+    log = sh.apply_skill(test_skill, test_weapon, test_entity_caster, test_target)
+    assert len(log) == 2
+
+
+def test_apply_skill_deals_damage_returns_0():
+    test_entity_caster = Entity("Barko")
+    test_target = Entity("Boris")
+    test_weapon = Weapon(1, "Test weapon", base_damage=3)
+    test_skill = Skill("Test skill", is_direct=True, targets=SkillTargets.ENEMIES,
+                       skill_steps=[SkillStep(DamageTypes.PHYSICAL, True, 1.0)], description="Placeholder description")
+    sh.apply_skill(test_skill, test_weapon, test_entity_caster, test_target)
+    assert test_target.current_health == 0
+
+
+def test_apply_skill_applies_damage_returns_0():
+    test_entity_caster = Entity("Barko", base_armor_pierce=2)
+    test_target = Entity("Boris", base_max_health=3)
+    test_weapon = Weapon(1, "Test weapon", base_damage=1)
+    test_skill = Skill("Test skill", is_direct=True, targets=SkillTargets.ENEMIES,
+                       skill_steps=[SkillStep(DamageTypes.PHYSICAL, True, 1.0)], description="Placeholder description")
+    sh.apply_skill(test_skill, test_weapon, test_entity_caster, test_target)
+    assert test_target.current_health == 0
+
+
+def test_apply_skill_affects_indirect_targets_if_skill_is_indirect_returns_0():
+    test_entity_caster = Entity("Barko")
+    test_direct_target = Entity("Boris", base_max_health=3)
+    test_indirect_target = Entity("Painter", base_max_health=3)
+    test_weapon = Weapon(1, "Test weapon", base_damage=3)
+    test_skill = Skill("Test skill", is_direct=False, targets=SkillTargets.ENEMIES,
+                       skill_steps=[SkillStep(DamageTypes.PHYSICAL, True, 1.0)], description="Placeholder description")
+    sh.apply_skill(test_skill, test_weapon, test_entity_caster, test_direct_target, [test_indirect_target])
+    assert test_indirect_target.current_health == 0
+
+
+def test_apply_skill_affects_indirect_targets_if_skill_is_direct_and_does_not_affect_target_returns_0():
+    test_entity_caster = Entity("Barko")
+    test_direct_target = Entity("Boris", base_max_health=3)
+    test_indirect_target = Entity("Painter", base_max_health=3)
+    test_weapon = Weapon(1, "Test weapon", base_damage=3)
+    test_skill = Skill("Test skill", is_direct=True, targets=SkillTargets.ENEMIES,
+                       skill_steps=[SkillStep(DamageTypes.PHYSICAL, False, 1.0)], description="Placeholder description")
+    sh.apply_skill(test_skill, test_weapon, test_entity_caster, test_direct_target, [test_indirect_target])
+    assert test_indirect_target.current_health == 0

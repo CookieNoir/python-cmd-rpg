@@ -2,10 +2,10 @@ from rpg.models.entities.entity import Entity
 
 
 class Fighter:
-    def __init__(self, fighter_entity: Entity, controllable: bool):
+    def __init__(self, fighter_entity: Entity, is_ally: bool):
         self._step = fighter_entity.speed
         self._value = 0
-        self._controllable = controllable
+        self._is_ally = is_ally
         self.entity = fighter_entity
 
     @property
@@ -17,8 +17,8 @@ class Fighter:
         return self._value
 
     @property
-    def controllable(self) -> bool:
-        return self._controllable
+    def is_ally(self) -> bool:
+        return self._is_ally
 
     def make_step(self):
         self._value += self._step
