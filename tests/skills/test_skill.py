@@ -15,7 +15,7 @@ def test_is_direct_returns_true():
     test_skill = Skill("test skill", True, SkillTargets.ENEMIES,
                        [SkillStep(DamageTypes.PURE, False, 0.8), SkillStep(DamageTypes.HEALING, True, 1.0), ],
                        "test description")
-    assert test_skill.is_direct == True
+    assert test_skill.is_direct is True
 
 
 def test_targets_returns_enemies():
