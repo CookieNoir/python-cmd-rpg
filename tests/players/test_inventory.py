@@ -17,6 +17,11 @@ def test_get_items_in_range_lower_border_set_returns_3_5():
     assert test_inventory.get_items(1) == [3, 5]
 
 
+def test_get_items_in_range_lower_border_less_than_0_returns_4_3_5():
+    test_inventory = Inventory([4, 3, 5])
+    assert test_inventory.get_items(-1) == [4, 3, 5]
+
+
 def test_get_items_in_range_upper_border_set_returns_3():
     test_inventory = Inventory([4, 3, 5])
     assert test_inventory.get_items(1, 2) == [3]
