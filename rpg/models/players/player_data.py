@@ -1,5 +1,5 @@
-from inventory import Inventory
-from purse import Purse
+from rpg.models.players.inventory import Inventory
+from rpg.models.players.purse import Purse
 
 
 class PlayerData:

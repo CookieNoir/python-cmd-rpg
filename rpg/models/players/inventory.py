@@ -13,7 +13,10 @@ class Inventory:
         return item_id
 
     def get_items(self, start: int = 0, end: int = -1):
+        def _get_items_generator():
+            for i in range(start, end):
+                yield self._items[i]
+
         if end > len(self._items) or end < 0:
             end = len(self._items)
-        for i in range(start, end):
-            yield self._items[i]
+        return list(_get_items_generator())
